@@ -1,0 +1,33 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>My teams</h2>
+        <p><a asp-page="Teams/Create">create</a></p>
+        <ul>
+            @foreach (var team in Model.MyTeams)
+            {
+                <li><a asp-page="Teams/Details" asp-route-id="@team.Id">@team.Name</a></li>
+            }
+        </ul>
+    </div>
+
+    <div class="col-md-6">
+        <h2>My Upcomming Bookings</h2>
+        <p><a asp-page="Bookings/Create">create</a></p>
+        <ul>
+            @foreach (var booking in Model.MyUpcommingBookings)
+            {
+                <li>@booking.Date - @booking.Status</li>
+            }
+        </ul>
+    </div>
+</div>
