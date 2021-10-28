@@ -10,6 +10,8 @@ namespace TarsOffice.Data
     {
         public DbSet<Team> Teams { get; set; }
 
+        public DbSet<TeamMember> TeamMembers { get; set; }
+
         public DbSet<Booking> Bookings { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)

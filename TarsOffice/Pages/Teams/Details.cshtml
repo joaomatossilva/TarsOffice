@@ -5,19 +5,30 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>@Model.Team.Name</h1>
 
-<div>
-    <h4>Team</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Team.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Team.Name)
-        </dd>
-    </dl>
+<div class="row">
+    <div class="col-md-4">
+        <h2>Upcomming team bookings</h2>
+        @foreach (var teamBooking in Model.TeamBookings)
+        {
+            <div>
+                <h4>@teamBooking.Date</h4>
+                <ul>
+                    @foreach(var member in teamBooking.TeamBookings)
+                    {
+                    <li>
+                        @member.User.UserName
+                        @if (member.Status == BookingStatus.Tentative)
+                        {
+                            <span>(tentative)</span>
+                        }
+                    </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
 </div>
 <div>
     <a asp-page="./Edit" asp-route-id="@Model.Team.Id">Edit</a> |
