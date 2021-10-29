@@ -17,6 +17,9 @@ namespace TarsOffice.Data
         [Required]
         public IdentityUser User { get; set; } 
 
+        [ForeignKey("User")]
+        public string UserId { get; set; }
+
         public DateTime Date { get; set; }
 
         public BookingStatus Status { get; set; }
