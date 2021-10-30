@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using TarsOffice.Data;
+using TarsOffice.Extensions;
 
 namespace TarsOffice.Pages.Bookings
 {
@@ -34,6 +35,13 @@ namespace TarsOffice.Pages.Bookings
             {
                 return NotFound();
             }
+
+            var userId = User.GetId();
+            if (Booking.UserId != userId)
+            {
+                return Forbid();
+            }
+
             return Page();
         }
 
@@ -48,6 +56,12 @@ namespace TarsOffice.Pages.Bookings
 
             if (Booking != null)
             {
+                var userId = User.GetId();
+                if (Booking.UserId != userId)
+                {
+                    return Forbid();
+                }
+
                 _context.Bookings.Remove(Booking);
                 await _context.SaveChangesAsync();
             }

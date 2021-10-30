@@ -65,7 +65,9 @@ namespace TarsOffice.Pages.Teams
                     Date = date,
                     TeamBookings = bookings.Select(booking => new TeamDayBookings.TeamMemberBooking
                     {
+                        Id = booking.Id,
                         User = booking.User,
+                        ItsMe = booking.User.Id == userId,
                         Status = booking.Status
                     }).ToList()
                 });

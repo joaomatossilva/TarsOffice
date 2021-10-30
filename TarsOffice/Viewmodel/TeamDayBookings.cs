@@ -12,9 +12,12 @@ namespace TarsOffice.Viewmodel
         public DateTime Date { get; set; }
 
         public IList<TeamMemberBooking> TeamBookings { get; set; }
+        public bool IsAnyMine => TeamBookings.Any(x => x.ItsMe);
 
         public class TeamMemberBooking
         {
+            public Guid Id { get; set; }
+            public bool ItsMe { get; set; }
             public IdentityUser User { get; set; }
             public BookingStatus Status { get; set; }
         }

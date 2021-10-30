@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TarsOffice.Data;
+using TarsOffice.Extensions;
 
 namespace TarsOffice.Pages.Bookings
 {
@@ -35,6 +36,13 @@ namespace TarsOffice.Pages.Bookings
             {
                 return NotFound();
             }
+
+            var userId = User.GetId();
+            if(Booking.UserId != userId)
+            {
+                return Forbid();
+            }
+
             return Page();
         }
 
@@ -42,13 +50,19 @@ namespace TarsOffice.Pages.Bookings
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            var existingBooking = await _context.Bookings.FirstOrDefaultAsync(m => m.Id == Booking.Id);
+            if (existingBooking == null)
             {
-                return Page();
+                return NotFound();
             }
 
-            _context.Attach(Booking).State = EntityState.Modified;
+            var userId = User.GetId();
+            if (existingBooking.UserId != userId)
+            {
+                return Forbid();
+            }
 
+            existingBooking.Status = Booking.Status;
             try
             {
                 await _context.SaveChangesAsync();
@@ -64,7 +78,6 @@ namespace TarsOffice.Pages.Bookings
                     throw;
                 }
             }
-
             return RedirectToPage("./Index");
         }
 
