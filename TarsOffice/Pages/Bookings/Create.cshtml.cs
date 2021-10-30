@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using TarsOffice.Data;
 using TarsOffice.Extensions;
+using TarsOffice.Viewmodel;
 
 namespace TarsOffice.Pages.Bookings
 {
@@ -21,7 +23,7 @@ namespace TarsOffice.Pages.Bookings
 
         public IActionResult OnGet(DateTime? date)
         {
-            Booking = new Booking();
+            Booking = new NewBooking();
             if(date != null)
             {
                 Booking.Date = date.Value;
@@ -31,20 +33,15 @@ namespace TarsOffice.Pages.Bookings
         }
 
         [BindProperty]
-        public Booking Booking { get; set; }
+        public NewBooking Booking { get; set; }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            ModelState["Booking.User"].Errors.Clear();
-            ModelState["Booking.User"].ValidationState = Microsoft.AspNetCore.Mvc.ModelBinding.ModelValidationState.Valid;
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
+            var userId = User.GetId();
+            var user = await _context.Users.FirstAsync(x => x.Id == userId);
             var newBooking = new Booking
             {
-                UserId = User.GetId()
+                User = user
             };
             if(await TryUpdateModelAsync<Booking>(newBooking, "booking", s => s.Date, s =>s.Status))
             {

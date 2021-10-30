@@ -32,7 +32,10 @@ namespace TarsOffice
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddRazorPages();
+            services.AddRazorPages(opt =>
+            {
+                opt.Conventions.AuthorizeFolder("/");
+            });
 
             services.AddAuthentication()
                 .AddGoogle(options =>
