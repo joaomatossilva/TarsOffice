@@ -9,35 +9,22 @@
 
 <div class="row">
     <div class="col-md-8">
-        <h2>Upcomming team bookings</h2>
-        @foreach (var teamBooking in Model.TeamBookings)
-        {
-    <div>
-        <h4>@teamBooking.Date</h4>
-        @if (!teamBooking.IsAnyMine) 
-        {
-            <p><a asp-page="../Bookings/Create" asp-route-date="@teamBooking.Date.ToString("yyyy-MM-dd")">create</a></p>
-        }
+        <h2>Members</h2>
         <ul>
-            @foreach (var booking in teamBooking.TeamBookings)
+            @foreach (var teamMember in Model.Team.Members)
             {
                 <li>
-                    @booking.User.UserName
-                    @if (booking.Status == BookingStatus.Tentative)
+                    <span>@teamMember.User.UserName</span>
+                    @if(teamMember.IsAdmin)
                     {
-                        <span>(tentative)</span>
+                        <span>(admin)</span>
                     }
-                    @if(booking.ItsMe)
-                    {
-                        <a asp-page="../Bookings/Edit" asp-route-id="@booking.Id" >edit</a>
-                        <a asp-page="../Bookings/Delete" asp-route-id="@booking.Id" >delete</a>
-                    }
+
                 </li>
+
             }
-        </ul>
-    </div>
-        }
-    </div>
+            </ul>
+        </div>
 </div>
 <div>
     <a asp-page="./Edit" asp-route-id="@Model.Team.Id">Edit</a> |

@@ -21,7 +21,6 @@ namespace TarsOffice.Pages.Teams
         }
 
         public Team Team { get; set; }
-        public IList<TeamDayBookings> TeamBookings { get; set; }
 
         public async Task<IActionResult> OnGetAsync(Guid? id)
         {
@@ -44,33 +43,6 @@ namespace TarsOffice.Pages.Teams
             if (!Team.Members.Any(member => member.UserId == userId))
             {
                 return Forbid();
-            }
-
-            var startDate = DateTime.Today;
-            var lastDate = startDate.AddDays(7);
-            var nextTeamBookings = await _context.Bookings
-                .Include(booking => booking.User)
-                .Where(booking => booking.Date <= lastDate && booking.Date >= startDate)
-                .Join(_context.TeamMembers, b => b.User, t => t.User, (booking, teamMember) => new { booking, teamMember })
-                .Where(join => join.teamMember.Team.Id == id)
-                .Select(join => join.booking)
-                .ToListAsync();
-
-            TeamBookings = new List<TeamDayBookings>();
-            for(var date = startDate; date <= lastDate; date = date.AddDays(1))
-            {
-                var bookings = nextTeamBookings.Where(b => b.Date == date);
-                TeamBookings.Add(new TeamDayBookings
-                {
-                    Date = date,
-                    TeamBookings = bookings.Select(booking => new TeamDayBookings.TeamMemberBooking
-                    {
-                        Id = booking.Id,
-                        User = booking.User,
-                        ItsMe = booking.User.Id == userId,
-                        Status = booking.Status
-                    }).ToList()
-                });
             }
 
             return Page();

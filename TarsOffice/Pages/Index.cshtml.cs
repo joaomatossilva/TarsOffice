@@ -24,9 +24,9 @@ namespace TarsOffice.Pages
         }
 
         public IList<MyTeams> MyTeams { get; set; }
-        public IList<Booking> MyUpcommingBookings { get; set; }
+        public IList<TeamDayBookings> TeamBookings { get; set; }
 
-        public async Task OnGet()
+        public async Task OnGet(Guid? teamId)
         {
             var myId = User.GetId();
             MyTeams = await context.Teams
@@ -38,10 +38,35 @@ namespace TarsOffice.Pages
                 })
                 .ToListAsync();
 
+            var myTeamsQuery = context.Teams.Where(team => team.Members.Any(tm => tm.UserId == myId));
+            var allTeamMatesQuery = context.TeamMembers
+                .Join(myTeamsQuery, x => x.Team, y => y, (member, team) => member);
+
             var startDate = DateTime.Today;
-            MyUpcommingBookings = await context.Bookings
-                .Where(booking => booking.User.Id == myId && booking.Date >= startDate)
+            var lastDate = startDate.AddDays(7);
+            var nextTeamBookings = await context.Bookings
+                .Include(booking => booking.User)
+                .Where(booking => booking.Date <= lastDate && booking.Date >= startDate)
+                .Join(allTeamMatesQuery, b => b.User, t => t.User, (booking, teamMember) => new { booking, teamMember })
+                .Select(join => join.booking)
                 .ToListAsync();
+
+            TeamBookings = new List<TeamDayBookings>();
+            for (var date = startDate; date <= lastDate; date = date.AddDays(1))
+            {
+                var bookings = nextTeamBookings.Where(b => b.Date == date);
+                TeamBookings.Add(new TeamDayBookings
+                {
+                    Date = date,
+                    TeamBookings = bookings.Select(booking => new TeamDayBookings.TeamMemberBooking
+                    {
+                        Id = booking.Id,
+                        User = booking.User,
+                        ItsMe = booking.User.Id == myId,
+                        Status = booking.Status
+                    }).ToList()
+                });
+            }
         }
     }
 }
