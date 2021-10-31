@@ -28,6 +28,10 @@ namespace TarsOffice.Pages.Bookings
             {
                 Booking.Date = date.Value;
             }
+            else
+            {
+                Booking.Date = DateTime.Today.AddDays(1);
+            }
 
             return Page();
         }
@@ -45,6 +49,8 @@ namespace TarsOffice.Pages.Bookings
             };
             if(await TryUpdateModelAsync<Booking>(newBooking, "booking", s => s.Date, s =>s.Status))
             {
+                //truncate date
+                newBooking.Date = newBooking.Date.Date;
                 _context.Bookings.Add(newBooking);
                 await _context.SaveChangesAsync();
                 return RedirectToPage("../Index");
