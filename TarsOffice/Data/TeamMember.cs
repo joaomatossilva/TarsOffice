@@ -20,6 +20,7 @@ namespace TarsOffice.Data
         [Required]
         public IdentityUser User { get; set; }
 
+        [Required]
         public Team Team { get; set; }
 
         public bool IsAdmin { get; set; }
