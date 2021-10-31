@@ -86,7 +86,7 @@ namespace TarsOffice.Pages.Teams
             var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == TeamMember.UserName);
             if(user == null)
             {
-                user = new IdentityUser(TeamMember.UserName);
+                user = new IdentityUser { UserName = TeamMember.UserName, Email = TeamMember.UserName, EmailConfirmed = true };
                 var result = await userManager.CreateAsync(user);
                 if(!result.Succeeded)
                 {

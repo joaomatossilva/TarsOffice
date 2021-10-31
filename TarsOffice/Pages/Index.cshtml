@@ -17,7 +17,7 @@
                 <h4>@teamBooking.Date</h4>
                 @if (!teamBooking.IsAnyMine)
                 {
-                    <p><a asp-page="../Bookings/Create" asp-route-date="@teamBooking.Date.ToString("yyyy-MM-dd")">create</a></p>
+                    <p><a asp-page="Bookings/Create" asp-route-date="@teamBooking.Date.ToString("yyyy-MM-dd")">create</a></p>
                 }
                 <ul>
                     @foreach (var booking in teamBooking.TeamBookings)
@@ -30,8 +30,8 @@
                             }
                             @if (booking.ItsMe)
                             {
-                                <a asp-page="../Bookings/Edit" asp-route-id="@booking.Id">edit</a>
-                                <a asp-page="../Bookings/Delete" asp-route-id="@booking.Id">delete</a>
+                                <a asp-page="Bookings/Edit" asp-route-id="@booking.Id">edit</a>
+                                <a asp-page="Bookings/Delete" asp-route-id="@booking.Id">delete</a>
                             }
                         </li>
                     }
