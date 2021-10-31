@@ -13,20 +13,20 @@ using TarsOffice.Viewmodel;
 
 namespace TarsOffice.Pages.Teams
 {
-    public class AddMember : PageModel
+    public class RemoveMember : PageModel
     {
         private readonly TarsOffice.Data.ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> userManager;
 
-        public AddMember(TarsOffice.Data.ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public RemoveMember(TarsOffice.Data.ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
             this.userManager = userManager;
         }
 
-        public async Task<IActionResult> OnGetAsync(Guid id)
+        public async Task<IActionResult> OnGetAsync(Guid teamId, Guid id)
         {
-            if (id == null)
+            if (teamId == null)
             {
                 return NotFound();
             }
@@ -34,7 +34,7 @@ namespace TarsOffice.Pages.Teams
             Team = await _context.Teams
                 .Include(x => x.Members)
                 .ThenInclude(y => y.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == teamId);
 
             if (Team == null)
             {
@@ -45,6 +45,12 @@ namespace TarsOffice.Pages.Teams
             if (!Team.Members.Any(member => member.UserId == userId && member.IsAdmin))
             {
                 return Forbid();
+            }
+
+            TeamMember = Team.Members.FirstOrDefault(member => member.Id == id);
+            if (TeamMember == null)
+            {
+                return NotFound();
             }
 
             return Page();
@@ -53,9 +59,9 @@ namespace TarsOffice.Pages.Teams
         public Team Team { get; set; }
 
         [BindProperty]
-        public NewTeamMember TeamMember { get; set; }
+        public TeamMember TeamMember { get; set; }
 
-        public async Task<IActionResult> OnPostAsync(Guid id)
+        public async Task<IActionResult> OnPostAsync(Guid teamId, Guid id)
         {
             if (id == null)
             {
@@ -65,7 +71,7 @@ namespace TarsOffice.Pages.Teams
             Team = await _context.Teams
                 .Include(x => x.Members)
                 .ThenInclude(y => y.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == teamId);
 
             if (Team == null)
             {
@@ -78,32 +84,16 @@ namespace TarsOffice.Pages.Teams
                 return Forbid();
             }
 
-            if (!ModelState.IsValid)
+            TeamMember = Team.Members.FirstOrDefault(member => member.Id == id);
+            if (TeamMember == null)
             {
-                return Page();
+                return NotFound();
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == TeamMember.UserName);
-            if(user == null)
-            {
-                user = new IdentityUser(TeamMember.UserName);
-                var result = await userManager.CreateAsync(user);
-                if(!result.Succeeded)
-                {
-                    return Page();
-                }
-            }
-
-            var newTeamMember = new TeamMember
-            {
-                User = user,
-                IsAdmin = TeamMember.IsAdmin,
-                Team = Team
-            };
-
-            _context.TeamMembers.Add(newTeamMember);
+            _context.TeamMembers.Remove(TeamMember);
             await _context.SaveChangesAsync();
-            return RedirectToPage("Details", new { Id = id });
+            
+            return RedirectToPage("Details", new { Id = teamId });
         }
     }
 }

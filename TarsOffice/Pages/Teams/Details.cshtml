@@ -20,7 +20,10 @@
                     {
                         <span>(admin)</span>
                     }
-
+                    @if(Model.ImAdmin)
+                    {
+                        <a asp-page="RemoveMember" asp-route-id="@teamMember.Id" asp-route-teamId="@Model.Team.Id">remove</a>
+                    }
                 </li>
 
             }

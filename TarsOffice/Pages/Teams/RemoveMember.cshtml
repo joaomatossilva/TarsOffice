@@ -1,0 +1,43 @@
+﻿@page "{teamId}/{id}"
+@model TarsOffice.Pages.Teams.RemoveMember
+
+@{
+    ViewData["Title"] = "Remove Member";
+}
+
+<h1>Remove Member</h1>
+
+<h4>@Model.Team.Name</h4>
+<hr />
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.TeamMember.User.UserName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamMember.User.UserName)
+        </dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.TeamMember.IsAdmin)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamMember.IsAdmin)
+        </dd>
+    </dl>
+
+    <form method="post">
+        <input type="hidden" asp-for="TeamMember.Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-page="Details" asp-route-id="@Model.Team.Id">Back to List</a>
+    </form>
+</div>
+
+<div>
+    <a asp-page="Details" asp-route-id="@Model.Team.Id">Back to Team</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

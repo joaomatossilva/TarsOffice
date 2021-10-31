@@ -21,6 +21,7 @@ namespace TarsOffice.Pages.Teams
         }
 
         public Team Team { get; set; }
+        public bool ImAdmin { get; set; }
 
         public async Task<IActionResult> OnGetAsync(Guid? id)
         {
@@ -40,10 +41,13 @@ namespace TarsOffice.Pages.Teams
             }
 
             var userId = User.GetId();
-            if (!Team.Members.Any(member => member.UserId == userId))
+            var myMember = Team.Members.FirstOrDefault(member => member.UserId == userId);
+            if (myMember == null)
             {
                 return Forbid();
             }
+
+            ImAdmin = myMember.IsAdmin;
 
             return Page();
         }
