@@ -1,0 +1,39 @@
+﻿@page "{id}"
+@model TarsOffice.Pages.Teams.AddMember
+
+@{
+    ViewData["Title"] = "Add Member";
+}
+
+<h1>Add Member</h1>
+
+<h4>@Model.Team.Name</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="TeamMember.UserName" class="control-label"></label>
+                <input asp-for="TeamMember.UserName" class="form-control" />
+                <span asp-validation-for="TeamMember.UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TeamMember.IsAdmin" class="control-label"></label>
+                <input asp-for="TeamMember.IsAdmin" class="form-control" />
+                <span asp-validation-for="TeamMember.IsAdmin" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Details" asp-route-id="@Model.Team.Id">Back to Team</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

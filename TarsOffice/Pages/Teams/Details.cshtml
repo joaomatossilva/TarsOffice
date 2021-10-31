@@ -10,6 +10,7 @@
 <div class="row">
     <div class="col-md-8">
         <h2>Members</h2>
+        <a asp-page="AddMember" asp-route-id="@Model.Team.Id">add member</a>
         <ul>
             @foreach (var teamMember in Model.Team.Members)
             {
