@@ -1,4 +1,4 @@
-##TARS at the Office
+# TARS at the Office
 
 Track your office bookings and see your teamates bookings as well
 
