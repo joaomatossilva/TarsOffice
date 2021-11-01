@@ -85,7 +85,7 @@ namespace TarsOffice.Areas.Identity.Pages.Account
             var user = await _userManager.FindByNameAsync(userName);
             if(user == null)
             {
-                user = new IdentityUser { UserName = Input.Email, Email = Input.Email, EmailConfirmed = true };
+                user = new IdentityUser { UserName = userName, Email = userName, EmailConfirmed = true };
 
                 var result = await _userManager.CreateAsync(user);
                 if (!result.Succeeded)
