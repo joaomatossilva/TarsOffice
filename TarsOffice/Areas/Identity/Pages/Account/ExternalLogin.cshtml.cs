@@ -86,6 +86,17 @@ namespace TarsOffice.Areas.Identity.Pages.Account
             }
 
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+
+            var emailSuffix = configuration.GetValue<string>("Authentication:AllowDomain");
+            if(!string.IsNullOrEmpty(emailSuffix))
+            {
+                if(!email.EndsWith(emailSuffix, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    ErrorMessage = "This email address is not allowed.";
+                    return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                }
+            }
+
             var user = await _userManager.FindByEmailAsync(email);
             if(user == null)
             {

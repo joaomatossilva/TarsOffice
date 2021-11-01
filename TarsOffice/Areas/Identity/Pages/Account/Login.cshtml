@@ -6,6 +6,14 @@
 }
 
 <h1>@ViewData["Title"]</h1>
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+<div class="row">
+    <div class="alert-danger">
+        <span>@Model.ErrorMessage</span>
+    </div>
+</div>
+}
 <div class="row">
     <div class="col-md-6 col-md-offset-2">
         <section>
