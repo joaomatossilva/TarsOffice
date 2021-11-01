@@ -18,7 +18,7 @@ namespace TarsOffice.Viewmodel
         {
             public Guid Id { get; set; }
             public bool ItsMe { get; set; }
-            public IdentityUser User { get; set; }
+            public User User { get; set; }
             public BookingStatus Status { get; set; }
         }
     }

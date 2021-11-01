@@ -23,7 +23,11 @@
                     @foreach (var booking in teamBooking.TeamBookings)
                     {
                         <li>
-                            @booking.User.UserName
+                            @if(booking.User.Picture != null)
+                            {
+                                <img src="@booking.User.Picture" width="30"/>
+                            }
+                            @(booking.User.DisplayName ?? booking.User.UserName)
                             @if (booking.Status == BookingStatus.Tentative)
                             {
                                 <span>(tentative)</span>

@@ -15,7 +15,7 @@
             @foreach (var teamMember in Model.Team.Members)
             {
                 <li>
-                    <span>@teamMember.User.UserName</span>
+                    <span>@(teamMember.User.DisplayName ?? teamMember.User.UserName)</span>
                     @if(teamMember.IsAdmin)
                     {
                         <span>(admin)</span>

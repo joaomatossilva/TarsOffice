@@ -16,9 +16,9 @@ namespace TarsOffice.Pages.Teams
     public class RemoveMember : PageModel
     {
         private readonly TarsOffice.Data.ApplicationDbContext _context;
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<User> userManager;
 
-        public RemoveMember(TarsOffice.Data.ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public RemoveMember(TarsOffice.Data.ApplicationDbContext context, UserManager<User> userManager)
         {
             _context = context;
             this.userManager = userManager;

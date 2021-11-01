@@ -16,9 +16,9 @@ namespace TarsOffice.Pages.Teams
     public class AddMember : PageModel
     {
         private readonly TarsOffice.Data.ApplicationDbContext _context;
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<User> userManager;
 
-        public AddMember(TarsOffice.Data.ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public AddMember(TarsOffice.Data.ApplicationDbContext context, UserManager<User> userManager)
         {
             _context = context;
             this.userManager = userManager;
@@ -86,7 +86,7 @@ namespace TarsOffice.Pages.Teams
             var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == TeamMember.UserName);
             if(user == null)
             {
-                user = new IdentityUser { UserName = TeamMember.UserName, Email = TeamMember.UserName, EmailConfirmed = true };
+                user = new User { UserName = TeamMember.UserName, Email = TeamMember.UserName, EmailConfirmed = true };
                 var result = await userManager.CreateAsync(user);
                 if(!result.Succeeded)
                 {

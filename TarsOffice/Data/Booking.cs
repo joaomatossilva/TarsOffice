@@ -15,7 +15,7 @@ namespace TarsOffice.Data
         public Guid Id { get; set; }
 
         [Required]
-        public IdentityUser User { get; set; } 
+        public User User { get; set; } 
 
         [ForeignKey("User")]
         public string UserId { get; set; }

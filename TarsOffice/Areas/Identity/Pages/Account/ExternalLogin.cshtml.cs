@@ -12,32 +12,36 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using TarsOffice.Data;
 
 namespace TarsOffice.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
     public class ExternalLoginModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly IEmailSender _emailSender;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
+        //private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
+        private readonly IConfiguration configuration;
 
         public ExternalLoginModel(
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
+            SignInManager<User> signInManager,
+            UserManager<User> userManager,
             ILogger<ExternalLoginModel> logger,
-            IEmailSender emailSender)
+            IConfiguration configuration)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
-            _emailSender = emailSender;
+            this.configuration = configuration;
+            //_emailSender = emailSender;
         }
 
-        [BindProperty]
-        public InputModel Input { get; set; }
+        //[BindProperty]
+        //public InputModel Input { get; set; }
 
         public string ProviderDisplayName { get; set; }
 
@@ -46,12 +50,12 @@ namespace TarsOffice.Areas.Identity.Pages.Account
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public class InputModel
-        {
-            [Required]
-            [EmailAddress]
-            public string Email { get; set; }
-        }
+        //public class InputModel
+        //{
+        //    [Required]
+        //    [EmailAddress]
+        //    public string Email { get; set; }
+        //}
 
         public IActionResult OnGetAsync()
         {
@@ -81,11 +85,11 @@ namespace TarsOffice.Areas.Identity.Pages.Account
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            var userName = info.Principal.FindFirstValue(ClaimTypes.Email) ?? info.ProviderDisplayName;
-            var user = await _userManager.FindByNameAsync(userName);
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            var user = await _userManager.FindByEmailAsync(email);
             if(user == null)
             {
-                user = new IdentityUser { UserName = userName, Email = userName, EmailConfirmed = true };
+                user = new User { UserName = email, Email = email };
 
                 var result = await _userManager.CreateAsync(user);
                 if (!result.Succeeded)
@@ -99,20 +103,23 @@ namespace TarsOffice.Areas.Identity.Pages.Account
                 }
             }
 
-            if(!user.EmailConfirmed)
+            //update userInformation
+            if (info.Principal.HasClaim(c => c.Type == "urn:google:name"))
             {
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                var result = await _userManager.ConfirmEmailAsync(user, code);
-                if (!result.Succeeded)
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        _logger.LogError(error.Description);
-                    }
-                    ErrorMessage = "Error loading external login information.";
-                    return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
-                }
+                user.DisplayName = info.Principal.FindFirstValue("urn:google:name");
+                await _userManager.AddClaimAsync(user, info.Principal.FindFirst("urn:google:name"));
             }
+
+            if (info.Principal.HasClaim(c => c.Type == "urn:google:picture"))
+            {
+                user.Picture = info.Principal.FindFirstValue("urn:google:picture");
+                await _userManager.AddClaimAsync(user, info.Principal.FindFirst("urn:google:picture"));
+            }
+
+            user.EmailConfirmed = true;
+            await _userManager.UpdateAsync(user);
+
+
 
             //How to check if there is a login, without check if already exists by error code?
             var addLoginResult = await _userManager.AddLoginAsync(user, info);

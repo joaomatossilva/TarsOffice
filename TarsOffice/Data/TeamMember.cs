@@ -18,7 +18,7 @@ namespace TarsOffice.Data
         public string UserId { get; set; }
 
         [Required]
-        public IdentityUser User { get; set; }
+        public User User { get; set; }
 
         [Required]
         public Team Team { get; set; }
