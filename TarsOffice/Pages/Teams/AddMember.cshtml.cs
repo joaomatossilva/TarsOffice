@@ -83,10 +83,10 @@ namespace TarsOffice.Pages.Teams
                 return Page();
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == TeamMember.UserName);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == TeamMember.Email);
             if(user == null)
             {
-                user = new User { UserName = TeamMember.UserName, Email = TeamMember.UserName, EmailConfirmed = true };
+                user = new User { UserName = TeamMember.Email, Email = TeamMember.Email, EmailConfirmed = true };
                 var result = await userManager.CreateAsync(user);
                 if(!result.Succeeded)
                 {

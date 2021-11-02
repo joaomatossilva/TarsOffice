@@ -9,7 +9,7 @@ namespace TarsOffice.Viewmodel
     public class NewTeamMember
     {
         [Required]
-        public string UserName { get; set; }
+        public string Email { get; set; }
 
         public bool IsAdmin { get; set; }
     }
