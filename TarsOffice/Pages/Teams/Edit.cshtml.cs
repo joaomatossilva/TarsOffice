@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TarsOffice.Data;
+using TarsOffice.Extensions;
 
 namespace TarsOffice.Pages.Teams
 {
@@ -29,12 +30,21 @@ namespace TarsOffice.Pages.Teams
                 return NotFound();
             }
 
-            Team = await _context.Teams.FirstOrDefaultAsync(m => m.Id == id);
+            Team = await _context.Teams
+                .Include(team => team.Members)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (Team == null)
             {
                 return NotFound();
             }
+
+            var userId = User.GetId();
+            if (!Team.Members.Any(member => member.UserId == userId && member.IsAdmin))
+            {
+                return Forbid();
+            }
+
             return Page();
         }
 
@@ -42,30 +52,43 @@ namespace TarsOffice.Pages.Teams
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            var team = await _context.Teams
+                .Include(team => team.Members)
+                .FirstOrDefaultAsync(m => m.Id == Team.Id);
+
+            if (team == null)
             {
-                return Page();
+                return NotFound();
             }
 
-            _context.Attach(Team).State = EntityState.Modified;
-
-            try
+            var userId = User.GetId();
+            if (!team.Members.Any(member => member.UserId == userId && member.IsAdmin))
             {
-                await _context.SaveChangesAsync();
+                return Forbid();
             }
-            catch (DbUpdateConcurrencyException)
+
+            if(await TryUpdateModelAsync(team, "team", t => t.Name))
             {
-                if (!TeamExists(Team.Id))
+                try
                 {
-                    return NotFound();
+                    await _context.SaveChangesAsync();
                 }
-                else
+                catch (DbUpdateConcurrencyException)
                 {
-                    throw;
+                    if (!TeamExists(Team.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
+
+                return RedirectToPage("../Index");
             }
 
-            return RedirectToPage("./Index");
+            return Page();
         }
 
         private bool TeamExists(Guid id)
