@@ -10,38 +10,45 @@
 
 <div class="row">
     <div class="col-md-8">
-        <h2>Upcomming team bookings</h2>
-        @foreach (var teamBooking in Model.TeamBookings)
+        <h2>Upcoming team bookings</h2>
+        <div class="week-card-container">
+            @foreach (var teamBooking in Model.TeamBookings)
         {
-            <div>
-                <h4>@teamBooking.Date</h4>
-                @if (!teamBooking.IsAnyMine)
-                {
-                    <p><a asp-page="Bookings/Create" asp-route-date="@teamBooking.Date.ToString("yyyy-MM-dd")">create</a></p>
-                }
-                <ul>
-                    @foreach (var booking in teamBooking.TeamBookings)
-                    {
-                        <li>
-                            @if(booking.User.Picture != null)
-                            {
-                                <img src="@booking.User.Picture" width="30"/>
-                            }
-                            @(booking.User.DisplayName ?? booking.User.UserName)
-                            @if (booking.Status == BookingStatus.Tentative)
-                            {
-                                <span>(tentative)</span>
-                            }
-                            @if (booking.ItsMe)
-                            {
-                                <a asp-page="Bookings/Edit" asp-route-id="@booking.Id">edit</a>
-                                <a asp-page="Bookings/Delete" asp-route-id="@booking.Id">delete</a>
-                            }
-                        </li>
-                    }
-                </ul>
+            <div class="card week-card">
+                <div class="card-body">
+                    <div class="title">
+                        <h5 class="card-title">@teamBooking.Date.DayOfWeek - @teamBooking.Date.ToString("yyyy-MM-dd")</h5>
+                        @if (!teamBooking.IsAnyMine)
+                        {
+                            <a class="btn btn-primary btn-sm rounded-pill" asp-page="Bookings/Create" asp-route-date="@teamBooking.Date.ToString("yyyy-MM-dd")">Create</a>
+                        }
+                    </div>
+                    
+                    <ul>
+                        @foreach (var booking in teamBooking.TeamBookings)
+                        {
+                            <li>
+                                @if (booking.User.Picture != null)
+                                {
+                                    <img src="@booking.User.Picture" width="30" />
+                                }
+                                @(booking.User.DisplayName ?? booking.User.UserName)
+                                @if (booking.Status == BookingStatus.Tentative)
+                                {
+                                    <span>(tentative)</span>
+                                }
+                                @if (booking.ItsMe)
+                                {
+                                    <a asp-page="Bookings/Edit" asp-route-id="@booking.Id">edit</a>
+                                    <a asp-page="Bookings/Delete" asp-route-id="@booking.Id">delete</a>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
         }
+        </div>
     </div>
     <div class="col-md-4">
         <h2>My teams</h2>
