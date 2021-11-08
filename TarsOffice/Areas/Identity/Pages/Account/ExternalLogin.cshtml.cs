@@ -6,13 +6,16 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TarsOffice.Data;
 
@@ -25,17 +28,20 @@ namespace TarsOffice.Areas.Identity.Pages.Account
         private readonly UserManager<User> _userManager;
         //private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
+        private readonly IWebHostEnvironment env;
         private readonly IConfiguration configuration;
 
         public ExternalLoginModel(
             SignInManager<User> signInManager,
             UserManager<User> userManager,
             ILogger<ExternalLoginModel> logger,
+            IWebHostEnvironment env,
             IConfiguration configuration)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
+            this.env = env;
             this.configuration = configuration;
             //_emailSender = emailSender;
         }
@@ -62,11 +68,21 @@ namespace TarsOffice.Areas.Identity.Pages.Account
             return RedirectToPage("./Login");
         }
 
-        public IActionResult OnPost(string provider, string returnUrl = null)
+        public async Task<IActionResult> OnPost(string email, string returnUrl = null)
         {
+            if(env.IsDevelopment() && email.EndsWith("@local"))
+            {
+                //local login
+                var principal = CreateLocalPricipal(email);
+                var user = await GetOrCreateUser(email, principal);
+                return await SignInUser(user, returnUrl);
+            }
+
             // Request a redirect to the external login provider.
+            var provider = "Google"; //we only support google for now
             var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            properties.Items[GoogleChallengeProperties.LoginHintKey] = email;
             return new ChallengeResult(provider, properties);
         }
 
@@ -97,41 +113,12 @@ namespace TarsOffice.Areas.Identity.Pages.Account
                 }
             }
 
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await GetOrCreateUser(email, info.Principal);
             if(user == null)
             {
-                user = new User { UserName = email, Email = email };
-
-                var result = await _userManager.CreateAsync(user);
-                if (!result.Succeeded)
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        _logger.LogError(error.Description);
-                    }
-                    ErrorMessage = "Error loading external login information.";
-                    return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
-                }
+                return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
-
-            //update userInformation
-            if (info.Principal.HasClaim(c => c.Type == "urn:google:name"))
-            {
-                user.DisplayName = info.Principal.FindFirstValue("urn:google:name");
-                await _userManager.AddClaimAsync(user, info.Principal.FindFirst("urn:google:name"));
-            }
-
-            if (info.Principal.HasClaim(c => c.Type == "urn:google:picture"))
-            {
-                user.Picture = info.Principal.FindFirstValue("urn:google:picture");
-                await _userManager.AddClaimAsync(user, info.Principal.FindFirst("urn:google:picture"));
-            }
-
-            user.EmailConfirmed = true;
-            await _userManager.UpdateAsync(user);
-
-
-
+            
             //How to check if there is a login, without check if already exists by error code?
             var addLoginResult = await _userManager.AddLoginAsync(user, info);
             if (!addLoginResult.Succeeded && !addLoginResult.Errors.Any(x => x.Code == "LoginAlreadyAssociated"))
@@ -145,6 +132,52 @@ namespace TarsOffice.Areas.Identity.Pages.Account
             }
 
             return await SignInUser(info, returnUrl);
+        }
+
+        private ClaimsPrincipal CreateLocalPricipal(string email)
+        {
+            var principal = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
+                new Claim(ClaimTypes.Email, email),
+                new Claim(ClaimTypes.NameIdentifier, email),
+                new Claim("urn:google:name", email.Substring(0, email.IndexOf("@") - 1).Replace(".", " "))
+            }));
+            return principal;
+        }
+
+        private async Task<User> GetOrCreateUser(string email, ClaimsPrincipal principal)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                user = new User { UserName = email, Email = email };
+
+                var result = await _userManager.CreateAsync(user);
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        _logger.LogError(error.Description);
+                    }
+                    return null;
+                }
+            }
+
+            //update userInformation
+            if (principal.HasClaim(c => c.Type == "urn:google:name"))
+            {
+                user.DisplayName = principal.FindFirstValue("urn:google:name");
+                await _userManager.AddClaimAsync(user, principal.FindFirst("urn:google:name"));
+            }
+
+            if (principal.HasClaim(c => c.Type == "urn:google:picture"))
+            {
+                user.Picture = principal.FindFirstValue("urn:google:picture");
+                await _userManager.AddClaimAsync(user, principal.FindFirst("urn:google:picture"));
+            }
+
+            user.EmailConfirmed = true;
+            await _userManager.UpdateAsync(user);
+            return user;
         }
 
         private async Task<IActionResult> SignInUser(ExternalLoginInfo info, string returnUrl)
@@ -162,6 +195,12 @@ namespace TarsOffice.Areas.Identity.Pages.Account
 
             ErrorMessage = "Error loading external login information.";
             return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+        }
+
+        private async Task<IActionResult> SignInUser(User user, string returnUrl)
+        {
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            return LocalRedirect(returnUrl);
         }
 
         //*** Original Code ***

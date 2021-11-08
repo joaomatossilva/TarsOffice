@@ -3,17 +3,22 @@
 
 @{
     ViewData["Title"] = "Log in";
+    Layout = "_LayoutNoHeader";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h1>MeetMy.Team</h1>
 @if (!string.IsNullOrEmpty(Model.ErrorMessage))
 {
-<div class="row">
-    <div class="alert-danger">
-        <span>@Model.ErrorMessage</span>
+    <div class="row">
+        <div class="alert-danger">
+            <span>@Model.ErrorMessage</span>
+        </div>
     </div>
-</div>
 }
+<!-- need a class here to push this down instead of   &nbsp; -->
+<p>
+    &nbsp;
+</p>
 <div class="row">
     <div class="col-md-10 col-md-offset-2">
         <section>
@@ -21,37 +26,48 @@
                 Track your office bookings and see your teamates bookings as well!
             </h4>
 
-            <p>
-                Login with your Farfetch Gmail account, create your team (if no one has already created it for you) and register your bookings.
-                You will be able to see your bookings and your teammates!
-            </p>
-
             <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
-                            for details on setting up this ASP.NET application to support logging in via external services.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
-                        </div>
-                    </form>
-                }
+
+            @if (Model.IsDevelopment)
+            {
+                <div class="alert alert-info" role="alert">
+                    <h4 class="alert-heading">We're in development mode</h4>
+                    <p>
+                        In order to skip the need to configure Google OAuth clients, you can use a fake email ending in "@("@")local" domain.
+                        The "." will also be replaced by spaces.
+                    </p>
+                    <hr>
+                    <p>For example, an email like "john.silver@("@")local" will result in a user called "john silver"</p>
+                </div>
+
+                <!-- need a class here to push this down instead of   &nbsp; -->
+                <p>
+                    &nbsp;
+                </p>
             }
+
+            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                <div class="form-group">
+                    <label for="email">Enter your work e-mail address so we can connect to your login provider</label>
+                    <input type="text" name="email" class="form-control" />
+                </div>
+                <div>
+                    <input type="submit" value="OK" class="btn btn-primary" />
+                </div>
+            </form>
         </section>
+    </div>
+</div>
+<!-- need a class here to push this down instead of   &nbsp; -->
+<div class="row">
+    <div class="col-md-10 col-md-offset-2">
+        <p>
+            &nbsp;
+        </p>
+        <p>
+            Login with your Farfetch Gmail account, create your team (if no one has already created it for you) and register your bookings.
+            You will be able to see your bookings and your teammates!
+        </p>
     </div>
 </div>
 
