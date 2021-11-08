@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -40,14 +39,16 @@ namespace TarsOffice.Pages
 
             var myTeamsQuery = context.Teams.Where(team => team.Members.Any(tm => tm.UserId == myId));
             var allTeamMatesQuery = context.TeamMembers
-                .Join(myTeamsQuery, x => x.Team, y => y, (member, team) => member);
+                .Join(myTeamsQuery, x => x.Team, y => y, (member, team) => member)
+                .GroupBy(x => x.UserId)
+                .Select(x => x.Key);
 
             var startDate = DateTime.Today;
             var lastDate = startDate.AddDays(7);
             var nextTeamBookings = await context.Bookings
                 .Include(booking => booking.User)
                 .Where(booking => booking.Date <= lastDate && booking.Date >= startDate)
-                .Join(allTeamMatesQuery, b => b.User, t => t.User, (booking, teamMember) => new { booking, teamMember })
+                .Join(allTeamMatesQuery, b => b.UserId, k => k, (booking, teamMember) => new { booking, teamMember })
                 .Select(join => join.booking)
                 .ToListAsync();
 
