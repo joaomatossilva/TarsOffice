@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TarsOffice.Data;
+using TarsOffice.DayFeatures;
+using TarsOffice.DayFeatures.Abstractions;
 using TarsOffice.Extensions;
 using TarsOffice.Viewmodel;
 
@@ -14,11 +16,13 @@ namespace TarsOffice.Pages
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext context;
+        private readonly IEnumerable<IDayFeature> dayFeatures;
         private readonly ILogger<IndexModel> _logger;
 
-        public IndexModel(ApplicationDbContext context, ILogger<IndexModel> logger)
+        public IndexModel(ApplicationDbContext context, IEnumerable<IDayFeature> dayFeatures, ILogger<IndexModel> logger)
         {
             this.context = context;
+            this.dayFeatures = dayFeatures;
             _logger = logger;
         }
 
@@ -44,7 +48,7 @@ namespace TarsOffice.Pages
                 .Select(x => x.Key);
 
             var startDate = DateTime.Today;
-            var lastDate = startDate.AddDays(7);
+            var lastDate = startDate.AddDays(11);
             var nextTeamBookings = await context.Bookings
                 .Include(booking => booking.User)
                 .Where(booking => booking.Date <= lastDate && booking.Date >= startDate)
@@ -59,6 +63,7 @@ namespace TarsOffice.Pages
                 TeamBookings.Add(new TeamDayBookings
                 {
                     Date = date,
+                    DayFeatureTags = dayFeatures.Where(x => x.IsSatifiedBy(date)).SelectMany(x => x.Render(date)).ToList(),
                     TeamBookings = bookings.Select(booking => new TeamDayBookings.TeamMemberBooking
                     {
                         Id = booking.Id,

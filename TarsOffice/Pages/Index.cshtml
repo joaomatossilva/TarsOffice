@@ -1,4 +1,5 @@
 ﻿@page
+@using TarsOffice.Extensions
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
@@ -17,7 +18,13 @@
             <div class="card week-card">
                 <div class="card-body">
                     <div class="title">
-                        <h5 class="card-title">@teamBooking.Date.DayOfWeek - @teamBooking.Date.ToString("yyyy-MM-dd")</h5>
+                        <h5 class="card-title">
+                            @teamBooking.Date.DayOfWeek - @teamBooking.Date.ToString("yyyy-MM-dd")
+                            @foreach(var featureTag in teamBooking.DayFeatureTags)
+                            {
+                                @Html.BeginTag(featureTag.Type, htmlAttributes: featureTag.Properties);
+                            }
+                        </h5>
                         @if (!teamBooking.IsAnyMine)
                         {
                             <a class="btn btn-primary btn-sm rounded-pill" asp-page="Bookings/Create" asp-route-date="@teamBooking.Date.ToString("yyyy-MM-dd")">Create</a>

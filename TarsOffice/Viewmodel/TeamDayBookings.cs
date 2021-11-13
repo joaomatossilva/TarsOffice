@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TarsOffice.Data;
+using TarsOffice.DayFeatures.Abstractions;
 
 namespace TarsOffice.Viewmodel
 {
@@ -12,7 +13,10 @@ namespace TarsOffice.Viewmodel
         public DateTime Date { get; set; }
 
         public IList<TeamMemberBooking> TeamBookings { get; set; }
+
         public bool IsAnyMine => TeamBookings.Any(x => x.ItsMe);
+
+        public IEnumerable<Tag> DayFeatureTags { get; set; } = new List<Tag>();
 
         public class TeamMemberBooking
         {

@@ -15,6 +15,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using TarsOffice.Data;
+using TarsOffice.DayFeatures;
+using TarsOffice.DayFeatures.Abstractions;
 
 namespace TarsOffice
 {
@@ -66,6 +68,9 @@ namespace TarsOffice
                     options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
                     options.ClaimActions.MapJsonKey("urn:google:name", "name", "string");
                 });
+
+            services.AddSingleton<IDayFeature, PastelNataDayFeature>();
+            services.AddSingleton<IDayFeature, CroissantDayFeature>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
