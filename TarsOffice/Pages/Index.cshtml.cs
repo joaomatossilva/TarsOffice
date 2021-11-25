@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TarsOffice.Data;
-using TarsOffice.DayFeatures;
 using TarsOffice.DayFeatures.Abstractions;
 using TarsOffice.Extensions;
 using TarsOffice.Viewmodel;
@@ -48,7 +47,7 @@ namespace TarsOffice.Pages
                 .Select(x => x.Key);
 
             var startDate = DateTime.Today;
-            var lastDate = startDate.AddDays(11);
+            var lastDate = startDate.AddWorkingDays(11);
             var nextTeamBookings = await context.Bookings
                 .Include(booking => booking.User)
                 .Where(booking => booking.Date <= lastDate && booking.Date >= startDate)
@@ -57,7 +56,7 @@ namespace TarsOffice.Pages
                 .ToListAsync();
 
             TeamBookings = new List<TeamDayBookings>();
-            for (var date = startDate; date <= lastDate; date = date.AddDays(1))
+            for (var date = startDate; date <= lastDate; date = date.AddWorkingDays(1))
             {
                 var bookings = nextTeamBookings.Where(b => b.Date == date);
                 TeamBookings.Add(new TeamDayBookings
