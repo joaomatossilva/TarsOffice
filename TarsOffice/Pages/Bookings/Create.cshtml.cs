@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TarsOffice.Data;
 using TarsOffice.Extensions;
@@ -14,9 +11,9 @@ namespace TarsOffice.Pages.Bookings
 {
     public class CreateModel : PageModel
     {
-        private readonly TarsOffice.Data.ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public CreateModel(TarsOffice.Data.ApplicationDbContext context)
+        public CreateModel(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -30,7 +27,7 @@ namespace TarsOffice.Pages.Bookings
             }
             else
             {
-                Booking.Date = DateTime.Today.AddDays(1);
+                Booking.Date = DateTime.Today.AddWorkingDays(1);
             }
 
             return Page();
@@ -47,13 +44,16 @@ namespace TarsOffice.Pages.Bookings
             {
                 User = user
             };
-            if(await TryUpdateModelAsync<Booking>(newBooking, "booking", s => s.Date, s =>s.Status))
+            if(await TryUpdateModelAsync(newBooking, "booking", s => s.Date, s =>s.Status))
             {
                 //truncate date
                 newBooking.Date = newBooking.Date.Date;
-                _context.Bookings.Add(newBooking);
-                await _context.SaveChangesAsync();
-                return RedirectToPage("../Index");
+                if (newBooking.Date.IsWorkingDay())
+                {
+                    _context.Bookings.Add(newBooking);
+                    await _context.SaveChangesAsync();
+                    return RedirectToPage("../Index");
+                }
             }
 
             return Page();
