@@ -14,12 +14,10 @@ namespace TarsOffice.Pages.Teams
     public class CreateModel : PageModel
     {
         private readonly TarsOffice.Data.ApplicationDbContext _context;
-        private readonly ISiteService siteService;
 
-        public CreateModel(TarsOffice.Data.ApplicationDbContext context, ISiteService siteService)
+        public CreateModel(TarsOffice.Data.ApplicationDbContext context)
         {
             _context = context;
-            this.siteService = siteService;
         }
 
         public IActionResult OnGet()
@@ -37,7 +35,7 @@ namespace TarsOffice.Pages.Teams
                 return Page();
             }
 
-            var currentSiteId = siteService.GetCurrentSite();
+            var currentSiteId = User.GetSite();
             var newTeam = new Team()
             {
                 SiteId = currentSiteId

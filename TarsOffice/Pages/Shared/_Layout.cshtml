@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using TarsOffice.Services.Abstractions
+@inject ISiteService siteService
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -16,13 +18,21 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <component type="typeof(SiteHeader)" render-mode="Static" />
+                }
+
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <partial name="_LoginPartial" />
+                    <!--
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
                         </li>
-                    </ul>
+                    </ul>                
+                    -->
                 </div>
             </div>
         </nav>

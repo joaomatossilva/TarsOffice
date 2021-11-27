@@ -13,12 +13,10 @@ namespace TarsOffice.Pages.Bookings
     public class CreateModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly ISiteService siteService;
 
-        public CreateModel(ApplicationDbContext context, ISiteService siteService)
+        public CreateModel(ApplicationDbContext context)
         {
             _context = context;
-            this.siteService = siteService;
         }
 
         public IActionResult OnGet(DateTime? date)
@@ -42,7 +40,7 @@ namespace TarsOffice.Pages.Bookings
         public async Task<IActionResult> OnPostAsync()
         {
             var userId = User.GetId();
-            var currentSiteId = siteService.GetCurrentSite();
+            var currentSiteId = User.GetSite();
             var user = await _context.Users.FirstAsync(x => x.Id == userId);
             var newBooking = new Booking
             {

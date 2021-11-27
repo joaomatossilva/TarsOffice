@@ -1,0 +1,13 @@
+﻿@using TarsOffice.Services.Abstractions
+@inject ISiteService siteService
+<span class="navbar-brand">@siteName</span>
+
+@code {
+    private string siteName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var site = await siteService.GetCurrentSite();
+        siteName = site.Name;
+    }
+}

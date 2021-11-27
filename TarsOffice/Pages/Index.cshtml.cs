@@ -17,14 +17,12 @@ namespace TarsOffice.Pages
     {
         private readonly ApplicationDbContext context;
         private readonly IEnumerable<IDayFeature> dayFeatures;
-        private readonly ISiteService siteService;
         private readonly ILogger<IndexModel> _logger;
 
-        public IndexModel(ApplicationDbContext context, IEnumerable<IDayFeature> dayFeatures, ISiteService siteService, ILogger<IndexModel> logger)
+        public IndexModel(ApplicationDbContext context, IEnumerable<IDayFeature> dayFeatures, ILogger<IndexModel> logger)
         {
             this.context = context;
             this.dayFeatures = dayFeatures;
-            this.siteService = siteService;
             _logger = logger;
         }
 
@@ -34,7 +32,7 @@ namespace TarsOffice.Pages
         public async Task OnGet(Guid? teamId)
         {
             var myId = User.GetId();
-            var currentSiteId = siteService.GetCurrentSite();
+            var currentSiteId = User.GetSite();
             MyTeams = await context.Teams
                 .Where(x => x.Members.Any(m => m.User.Id == myId) && x.SiteId == currentSiteId)
                 .Select(team => new MyTeams

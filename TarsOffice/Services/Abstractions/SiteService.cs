@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using TarsOffice.Data;
 using TarsOffice.Extensions;
 
 namespace TarsOffice.Services.Abstractions
@@ -7,21 +11,33 @@ namespace TarsOffice.Services.Abstractions
     public class SiteService : ISiteService
     {
         private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly ApplicationDbContext applicationDbContext;
 
-        public SiteService(IHttpContextAccessor httpContextAccessor)
+        private static readonly ConcurrentDictionary<Guid, Site> SiteCache = new ConcurrentDictionary<Guid, Site>();
+
+        public SiteService(IHttpContextAccessor httpContextAccessor, ApplicationDbContext applicationDbContext)
         {
             this.httpContextAccessor = httpContextAccessor;
+            this.applicationDbContext = applicationDbContext;
         }
 
-        public Guid GetCurrentSite()
+        public async Task<Site> GetCurrentSite()
         {
-            var siteClaim = httpContextAccessor.HttpContext?.User.GetSite();
-            if (Guid.TryParse(siteClaim, out Guid siteId))
+            var siteId = httpContextAccessor.HttpContext.User.GetSite();
+            var site = await GetSite(siteId);
+            return site ?? throw new InvalidOperationException("Unable to find current Site");
+        }
+
+        public async Task<Site> GetSite(Guid id)
+        {
+            if(SiteCache.TryGetValue(id, out var site))
             {
-                return siteId;
+                return site;
             }
 
-            throw new InvalidOperationException("There is no Site on user claims");
+            site = await applicationDbContext.Sites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            return SiteCache.GetOrAdd(id, site);
         }
+
     }
 }

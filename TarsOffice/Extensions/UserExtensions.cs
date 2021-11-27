@@ -20,10 +20,17 @@ namespace TarsOffice.Extensions
             return userId;
         }
 
-        public static string GetSite(this ClaimsPrincipal claimsPrincipal)
+        public static Guid GetSite(this ClaimsPrincipal claimsPrincipal)
         {
             claimsPrincipal = claimsPrincipal ?? throw new ArgumentNullException(nameof(claimsPrincipal));
-            return claimsPrincipal.FindFirstValue(SiteClaimType);
+
+            var site = claimsPrincipal.FindFirstValue(SiteClaimType);
+            if (!Guid.TryParse(site, out var siteId))
+            {
+                throw new InvalidOperationException("Invalid site on principal");
+            }
+
+            return siteId;
         }
     }
 }
