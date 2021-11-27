@@ -21,5 +21,10 @@ namespace TarsOffice.Data
         public string Name { get; set; }
 
         public ICollection<TeamMember> Members { get; set; }
+
+        public Site Site { get; set; }
+
+        [ForeignKey("Site")]
+        public Guid SiteId { get; set; }
     }
 }

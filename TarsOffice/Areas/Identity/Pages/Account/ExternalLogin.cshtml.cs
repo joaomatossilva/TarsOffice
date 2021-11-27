@@ -18,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TarsOffice.Data;
+using TarsOffice.Extensions;
 
 namespace TarsOffice.Areas.Identity.Pages.Account
 {
@@ -30,19 +31,22 @@ namespace TarsOffice.Areas.Identity.Pages.Account
         private readonly ILogger<ExternalLoginModel> _logger;
         private readonly IWebHostEnvironment env;
         private readonly IConfiguration configuration;
+        private readonly ApplicationDbContext applicationDbContext;
 
         public ExternalLoginModel(
             SignInManager<User> signInManager,
             UserManager<User> userManager,
             ILogger<ExternalLoginModel> logger,
             IWebHostEnvironment env,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ApplicationDbContext applicationDbContext)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
             this.env = env;
             this.configuration = configuration;
+            this.applicationDbContext = applicationDbContext;
             //_emailSender = emailSender;
         }
 
@@ -73,7 +77,7 @@ namespace TarsOffice.Areas.Identity.Pages.Account
             if(env.IsDevelopment() && email.EndsWith("@local"))
             {
                 //local login
-                var principal = CreateLocalPricipal(email);
+                var principal = await CreateLocalPrincipal(email);
                 var user = await GetOrCreateUser(email, principal);
                 return await SignInUser(user, returnUrl);
             }
@@ -134,12 +138,14 @@ namespace TarsOffice.Areas.Identity.Pages.Account
             return await SignInUser(info, returnUrl);
         }
 
-        private ClaimsPrincipal CreateLocalPricipal(string email)
+        private async Task<ClaimsPrincipal> CreateLocalPrincipal(string email)
         {
+            var publicSite = await applicationDbContext.Sites.GetPublicSite();
             var principal = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
                 new Claim(ClaimTypes.Email, email),
                 new Claim(ClaimTypes.NameIdentifier, email),
-                new Claim("urn:google:name", email.Substring(0, email.IndexOf("@") - 1).Replace(".", " "))
+                new Claim("urn:google:name", email.Substring(0, email.IndexOf("@") - 1).Replace(".", " ")),
+                new Claim(UserExtensions.SiteClaimType, publicSite.Id.ToString())
             }));
             return principal;
         }
@@ -161,6 +167,13 @@ namespace TarsOffice.Areas.Identity.Pages.Account
                     return null;
                 }
             }
+
+            //for sure there will be better ways to get a domain out of an email
+            var emailDomain = email.Substring(email.IndexOf("@", StringComparison.Ordinal) + 1);
+            var site = (await applicationDbContext.Sites.FindByDomain(emailDomain))
+                       ?? await applicationDbContext.Sites.GetPublicSite();
+            var siteId = site.Id;
+            await _userManager.AddClaimAsync(user, new Claim(UserExtensions.SiteClaimType, siteId.ToString()));
 
             //update userInformation
             if (principal.HasClaim(c => c.Type == "urn:google:name"))

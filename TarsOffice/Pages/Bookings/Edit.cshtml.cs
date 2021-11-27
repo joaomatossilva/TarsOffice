@@ -78,7 +78,7 @@ namespace TarsOffice.Pages.Bookings
                     throw;
                 }
             }
-            return RedirectToPage("./Index");
+            return RedirectToPage("../Index");
         }
 
         private bool BookingExists(Guid id)

@@ -24,5 +24,10 @@ namespace TarsOffice.Data
         public DateTime Date { get; set; }
 
         public BookingStatus Status { get; set; }
+
+        public Site Site { get; set; }
+
+        [ForeignKey("Site")]
+        public Guid SiteId { get; set; }
     }
 }

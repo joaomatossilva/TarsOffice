@@ -7,16 +7,19 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TarsOffice.Data;
 using TarsOffice.Extensions;
+using TarsOffice.Services.Abstractions;
 
 namespace TarsOffice.Pages.Teams
 {
     public class CreateModel : PageModel
     {
         private readonly TarsOffice.Data.ApplicationDbContext _context;
+        private readonly ISiteService siteService;
 
-        public CreateModel(TarsOffice.Data.ApplicationDbContext context)
+        public CreateModel(TarsOffice.Data.ApplicationDbContext context, ISiteService siteService)
         {
             _context = context;
+            this.siteService = siteService;
         }
 
         public IActionResult OnGet()
@@ -34,7 +37,12 @@ namespace TarsOffice.Pages.Teams
                 return Page();
             }
 
-            var newTeam = new Team();
+            var currentSiteId = siteService.GetCurrentSite();
+            var newTeam = new Team()
+            {
+                SiteId = currentSiteId
+            };
+
             if (await TryUpdateModelAsync<Team>(newTeam, "team", s => s.Name))
             {
                 newTeam.Members.Add(new TeamMember

@@ -15,6 +15,8 @@ namespace TarsOffice.Data
 
         public DbSet<Booking> Bookings { get; set; }
 
+        public DbSet<Site> Sites { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

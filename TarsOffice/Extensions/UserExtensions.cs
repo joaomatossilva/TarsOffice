@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace TarsOffice.Extensions
 {
     public static class UserExtensions
     {
+        public const string SiteClaimType = "https://meetmy.team/claim_types/site";
+
         public static string GetId(this ClaimsPrincipal claimsPrincipal)
         {
             claimsPrincipal = claimsPrincipal ?? throw new ArgumentNullException(nameof(claimsPrincipal));
@@ -19,6 +18,12 @@ namespace TarsOffice.Extensions
             }
 
             return userId;
+        }
+
+        public static string GetSite(this ClaimsPrincipal claimsPrincipal)
+        {
+            claimsPrincipal = claimsPrincipal ?? throw new ArgumentNullException(nameof(claimsPrincipal));
+            return claimsPrincipal.FindFirstValue(SiteClaimType);
         }
     }
 }

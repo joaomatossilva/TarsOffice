@@ -17,6 +17,7 @@ using System.Web;
 using TarsOffice.Data;
 using TarsOffice.DayFeatures;
 using TarsOffice.DayFeatures.Abstractions;
+using TarsOffice.Services.Abstractions;
 
 namespace TarsOffice
 {
@@ -71,6 +72,9 @@ namespace TarsOffice
 
             services.AddSingleton<IDayFeature, PastelNataDayFeature>();
             services.AddSingleton<IDayFeature, CroissantDayFeature>();
+
+            services.AddScoped<ISiteService, SiteService>();
+            services.AddHttpContextAccessor();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

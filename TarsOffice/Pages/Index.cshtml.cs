@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TarsOffice.Data;
 using TarsOffice.DayFeatures.Abstractions;
 using TarsOffice.Extensions;
+using TarsOffice.Services.Abstractions;
 using TarsOffice.Viewmodel;
 
 namespace TarsOffice.Pages
@@ -16,12 +17,14 @@ namespace TarsOffice.Pages
     {
         private readonly ApplicationDbContext context;
         private readonly IEnumerable<IDayFeature> dayFeatures;
+        private readonly ISiteService siteService;
         private readonly ILogger<IndexModel> _logger;
 
-        public IndexModel(ApplicationDbContext context, IEnumerable<IDayFeature> dayFeatures, ILogger<IndexModel> logger)
+        public IndexModel(ApplicationDbContext context, IEnumerable<IDayFeature> dayFeatures, ISiteService siteService, ILogger<IndexModel> logger)
         {
             this.context = context;
             this.dayFeatures = dayFeatures;
+            this.siteService = siteService;
             _logger = logger;
         }
 
@@ -31,8 +34,9 @@ namespace TarsOffice.Pages
         public async Task OnGet(Guid? teamId)
         {
             var myId = User.GetId();
+            var currentSiteId = siteService.GetCurrentSite();
             MyTeams = await context.Teams
-                .Where(x => x.Members.Any(m => m.User.Id == myId))
+                .Where(x => x.Members.Any(m => m.User.Id == myId) && x.SiteId == currentSiteId)
                 .Select(team => new MyTeams
                 {
                     Id = team.Id,
@@ -50,7 +54,7 @@ namespace TarsOffice.Pages
             var lastDate = startDate.AddWorkingDays(11);
             var nextTeamBookings = await context.Bookings
                 .Include(booking => booking.User)
-                .Where(booking => booking.Date <= lastDate && booking.Date >= startDate)
+                .Where(booking => booking.Date <= lastDate && booking.Date >= startDate && booking.SiteId == currentSiteId)
                 .Join(allTeamMatesQuery, b => b.UserId, k => k, (booking, teamMember) => new { booking, teamMember })
                 .Select(join => join.booking)
                 .ToListAsync();
