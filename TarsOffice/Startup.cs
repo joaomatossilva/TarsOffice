@@ -80,6 +80,8 @@ namespace TarsOffice
 
             services.AddSingleton<IDayFeature, PastelNataDayFeature>();
             services.AddSingleton<IDayFeature, CroissantDayFeature>();
+            services.AddSingleton<IDayFeature, CakeDayFeature>();
+            services.AddSingleton<IDayFeature, CupCakeDayFeature>();
 
             services.AddScoped<ISiteService, SiteService>();
             services.AddHttpContextAccessor();

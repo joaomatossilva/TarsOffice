@@ -4,15 +4,13 @@ using TarsOffice.DayFeatures.Abstractions;
 
 namespace TarsOffice.DayFeatures
 {
-    public class CroissantDayFeature : IDayFeature
+    public class CakeDayFeature : IDayFeature
     {
-        private static DateTime FirstOccourrence = new DateTime(2021, 11, 24);
-        public string Name => "Croissant";
+        public string Name => "Cake";
 
         public bool IsSatisfiedBy(DateTime date)
         {
-            var days = date.Subtract(FirstOccourrence);
-            return days.Days % 14 == 0 || (days.Days + 5) % 14 == 0; // occurs every 15 days
+            return date.DayOfWeek == DayOfWeek.Tuesday || date.DayOfWeek == DayOfWeek.Thursday;
         }
 
         public IEnumerable<Tag> Render(DateTime date)
@@ -23,7 +21,7 @@ namespace TarsOffice.DayFeatures
                     Type= "img",
                     Properties =
                     {
-                        { "src" , "/img/icons8-croissant-48.png" },
+                        { "src" , "/img/icons8-cake-64.png" },
                         { "style", "width: 20px" }
                     }
                 }

@@ -9,10 +9,10 @@ namespace TarsOffice.DayFeatures
         private static DateTime FirstOccourrence = new DateTime(2021, 11, 17);
         public string Name => "PastelNata";
 
-        public bool IsSatifiedBy(DateTime date)
+        public bool IsSatisfiedBy(DateTime date)
         {
             var days = date.Subtract(FirstOccourrence);
-            return days.Days % 14 == 0; // occours every 15 days
+            return days.Days % 14 == 0 || (days.Days + 5) % 14 == 0; // occurs every 15 days
         }
 
         public IEnumerable<Tag> Render(DateTime date)

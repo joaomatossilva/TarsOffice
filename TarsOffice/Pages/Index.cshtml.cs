@@ -64,7 +64,7 @@ namespace TarsOffice.Pages
                 TeamBookings.Add(new TeamDayBookings
                 {
                     Date = date,
-                    DayFeatureTags = dayFeatures.Where(x => x.IsSatifiedBy(date)).SelectMany(x => x.Render(date)).ToList(),
+                    DayFeatureTags = dayFeatures.Where(x => x.IsSatisfiedBy(date)).SelectMany(x => x.Render(date)).ToList(),
                     TeamBookings = bookings.Select(booking => new TeamDayBookings.TeamMemberBooking
                     {
                         Id = booking.Id,

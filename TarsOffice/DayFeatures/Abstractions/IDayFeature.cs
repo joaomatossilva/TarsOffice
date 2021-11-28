@@ -6,7 +6,7 @@ namespace TarsOffice.DayFeatures.Abstractions
     public interface IDayFeature
     {
         string Name { get; }
-        public bool IsSatifiedBy(DateTime date);
+        public bool IsSatisfiedBy(DateTime date);
         IEnumerable<Tag> Render(DateTime date);
     }
 }
