@@ -19,7 +19,7 @@
                 <div class="card-body">
                     <div class="title">
                         <h5 class="card-title">
-                            @teamBooking.Date.DayOfWeek - @teamBooking.Date.ToString("yyyy-MM-dd")
+                            @teamBooking.Date.ToString("ddd - dd MMM")
                             @foreach(var featureTag in teamBooking.DayFeatureTags)
                             {
                                 @Html.BeginTag(featureTag.Type, htmlAttributes: featureTag.Properties);
