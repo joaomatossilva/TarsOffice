@@ -49,7 +49,12 @@ namespace TarsOffice.Pages
                 .Select(x => x.Key);
 
             var startDate = DateTime.Today;
-            var lastDate = startDate.AddWorkingDays(11);
+            if (!startDate.IsWorkingDay())
+            {
+                startDate = startDate.AddWorkingDays(1);
+            }
+
+            var lastDate = startDate.AddDays(13);
             var nextTeamBookings = await context.Bookings
                 .Include(booking => booking.User)
                 .Where(booking => booking.Date <= lastDate && booking.Date >= startDate && booking.SiteId == currentSiteId)
