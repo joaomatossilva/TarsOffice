@@ -70,6 +70,36 @@ body {
   line-height: 60px; /* Vertically center the text there */
 }
 
+/* Fork me label
+    *** credits to https://github.com/cedced19/fork-label ***
+-------------------------------------------------- */
+
+#forkme {
+    transform: rotate(45deg);
+    background-color: #FFF;
+    overflow: hidden;
+    position: fixed;
+    z-index: 300;
+    width: 240px;
+    right: -60px;
+    top: 46px;
+    border-style: solid;
+    border-color: #7B7979;
+}
+
+#forkme a {
+    color: #404040;
+    display: block;
+    font: 13px Helvetica Neue,Arial,sans-serif;
+    margin: 0.05em 0px 0.075em;
+    padding: 0.6em;
+    text-align: center;
+    text-decoration: none;
+}
+
+/* Week Card
+--------------------------------------------*/
+
 .week-card-container {
     display: flex;
     flex-wrap: wrap;
