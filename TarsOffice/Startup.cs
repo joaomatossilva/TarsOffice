@@ -43,7 +43,15 @@ namespace TarsOffice
                 opt.Conventions.AuthorizeFolder("/");
             });
 
-            services.AddAuthentication()
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.Name = "tarsatoffice_2111";
+            });
+
+            services.AddAuthentication(options =>
+                {
+                    //options.
+                })
                 .AddGoogle(options =>
                 {
                     IConfigurationSection googleAuthNSection = Configuration.GetSection("Authentication:Google");
