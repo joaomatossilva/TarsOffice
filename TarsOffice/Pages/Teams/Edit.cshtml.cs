@@ -67,28 +67,23 @@ namespace TarsOffice.Pages.Teams
                 return Forbid();
             }
 
-            if(await TryUpdateModelAsync(team, "team", t => t.Name))
+            team.Name = Team.Name;
+            try
             {
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TeamExists(Team.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-
-                return RedirectToPage("../Index");
+                await _context.SaveChangesAsync();
             }
-
-            return Page();
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!TeamExists(Team.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToPage("../Index");
         }
 
         private bool TeamExists(Guid id)
